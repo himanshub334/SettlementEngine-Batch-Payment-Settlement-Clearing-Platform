@@ -1,0 +1,5 @@
+CREATE TABLE payment_transactions(id BIGSERIAL PRIMARY KEY, merchant_id VARCHAR(40) NOT NULL, amount NUMERIC(19,2) NOT NULL CHECK(amount>0), status VARCHAR(20) NOT NULL, card_tier VARCHAR(20) NOT NULL, transaction_date DATE NOT NULL);
+CREATE INDEX ix_tx_status_date ON payment_transactions(status,transaction_date,id);
+CREATE TABLE settlement_records(id BIGSERIAL PRIMARY KEY, transaction_id BIGINT NOT NULL UNIQUE REFERENCES payment_transactions(id), merchant_id VARCHAR(40) NOT NULL, gross_amount NUMERIC(19,2) NOT NULL, fee_amount NUMERIC(19,2) NOT NULL, net_amount NUMERIC(19,2) NOT NULL, settlement_date DATE NOT NULL);
+CREATE TABLE audit_log(id BIGSERIAL PRIMARY KEY,event_type VARCHAR(80) NOT NULL,transaction_id BIGINT NOT NULL,detail VARCHAR(500) NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE TABLE settlement_exceptions(id BIGSERIAL PRIMARY KEY,transaction_id BIGINT NOT NULL,reason VARCHAR(300) NOT NULL,state VARCHAR(20) NOT NULL DEFAULT 'OPEN',created_at TIMESTAMPTZ NOT NULL DEFAULT now());
